@@ -1,0 +1,43 @@
+version: '3'
+
+services:
+
+   db:
+     container_name: tedthegoddb
+     image: postgres
+     hostname: db
+     environment:
+       GET_HOST_FROM: dns
+       POSTGRES_DB: dev
+       POSTGRES_USER: ted
+       POSTGRES_PASWORD: ted
+     ports:
+       - 5432:5432
+     networks:
+       - tedthegodnet
+
+   api:
+     container_name: tedthegodapi
+     image: tedthegod:1.01
+     hostname: api
+     build:
+       context: .
+       dockerfile: Dockerfile
+     environment:
+       GET_HOST_FROM: dns
+     networks:
+       - tedthegodnet
+     volumes:
+       - .:/go/src/tedthegod
+     ports:
+       - 8080:8080
+     depends_on:
+       - db
+     links:
+       - db
+     labels:
+       kompose.service.type: local_balancer
+
+networks:
+  tedthegodnet:
+    driver: bridge
